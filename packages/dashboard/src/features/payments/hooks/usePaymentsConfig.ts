@@ -1,11 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { paymentsService } from '../services/payments.service';
-import { useToast } from '../../../lib/hooks/useToast';
 import type {
   GetPaymentsConfigResponse,
   StripeEnvironment,
   UpsertPaymentsConfigRequest,
 } from '@insforge/shared-schemas';
+import { paymentsService } from '#features/payments/services/payments.service';
+import { useToast } from '#lib/hooks/useToast';
 
 const PAYMENTS_CONFIG_QUERY_KEY = ['payments', 'config'];
 

@@ -102,7 +102,7 @@ export class StripeProvider {
       });
   }
 
-  async retrieveAccount(): Promise<StripeAccount> {
+  retrieveAccount(): Promise<StripeAccount> {
     return this.client.accounts.retrieveCurrent();
   }
 
@@ -134,7 +134,7 @@ export class StripeProvider {
     );
   }
 
-  async createCustomerPortalSession(
+  createCustomerPortalSession(
     input: StripeCustomerPortalSessionCreateInput
   ): Promise<StripeCustomerPortalSession> {
     const params: StripeCustomerPortalSessionCreateParams = {
@@ -202,11 +202,11 @@ export class StripeProvider {
     return this.client.webhooks.constructEvent(rawBody, signature, webhookSecret);
   }
 
-  async retrievePaymentIntent(paymentIntentId: string): Promise<StripePaymentIntent> {
+  retrievePaymentIntent(paymentIntentId: string): Promise<StripePaymentIntent> {
     return this.client.paymentIntents.retrieve(paymentIntentId);
   }
 
-  async retrieveCharge(chargeId: string): Promise<StripeCharge> {
+  retrieveCharge(chargeId: string): Promise<StripeCharge> {
     return this.client.charges.retrieve(chargeId);
   }
 
@@ -237,7 +237,7 @@ export class StripeProvider {
     return endpoints;
   }
 
-  async createWebhookEndpoint(
+  createWebhookEndpoint(
     input: StripeWebhookEndpointCreateInput
   ): Promise<StripeWebhookEndpointCreateResult> {
     const params: StripeWebhookEndpointCreateParams = {
@@ -319,7 +319,7 @@ export class StripeProvider {
     );
   }
 
-  async updateProduct(productId: string, input: StripeProductUpdateInput): Promise<StripeProduct> {
+  updateProduct(productId: string, input: StripeProductUpdateInput): Promise<StripeProduct> {
     const params: StripeProductUpdateParams = {};
 
     if (input.name !== undefined) {
@@ -341,7 +341,7 @@ export class StripeProvider {
     return this.client.products.update(productId, params);
   }
 
-  async deleteProduct(productId: string): Promise<StripeProductDeleteResult> {
+  deleteProduct(productId: string): Promise<StripeProductDeleteResult> {
     return this.client.products.del(productId);
   }
 
@@ -399,7 +399,7 @@ export class StripeProvider {
     );
   }
 
-  async updatePrice(priceId: string, input: StripePriceUpdateInput): Promise<StripePrice> {
+  updatePrice(priceId: string, input: StripePriceUpdateInput): Promise<StripePrice> {
     const params: StripePriceUpdateParams = {};
 
     if (input.active !== undefined) {

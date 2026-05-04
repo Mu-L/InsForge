@@ -1,4 +1,3 @@
-import { apiClient } from '../../../lib/api/client';
 import type {
   ConfigurePaymentWebhookResponse,
   GetPaymentsConfigResponse,
@@ -13,6 +12,7 @@ import type {
   StripeEnvironment,
   UpsertPaymentsConfigRequest,
 } from '@insforge/shared-schemas';
+import { apiClient } from '#lib/api/client';
 
 export class PaymentsService {
   async getStatus(): Promise<GetPaymentsStatusResponse> {

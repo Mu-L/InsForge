@@ -2,16 +2,16 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { ChevronRight, Settings } from 'lucide-react';
 import { useOutletContext } from 'react-router-dom';
 import { Button, Tab, Tabs } from '@insforge/ui';
-import { ErrorState, LoadingState, TableHeader } from '../../../components';
-import { cn } from '../../../lib/utils/utils';
-import { usePaymentSubscriptions } from '../hooks/usePaymentSubscriptions';
-import type { PaymentsOutletContext } from '../components/PaymentsLayout';
 import type {
   StripeEnvironment,
   StripeSubscriptionItem,
   StripeSubscriptionMirror,
   StripeSubscriptionStatus,
 } from '@insforge/shared-schemas';
+import { ErrorState, LoadingState, TableHeader } from '#components';
+import type { PaymentsOutletContext } from '#features/payments/components/PaymentsLayout';
+import { usePaymentSubscriptions } from '#features/payments/hooks/usePaymentSubscriptions';
+import { cn } from '#lib/utils/utils';
 
 const ENVIRONMENTS: StripeEnvironment[] = ['test', 'live'];
 

@@ -16,14 +16,14 @@ import {
   MenuDialogSideNavTitle,
   MenuDialogTitle,
 } from '@insforge/ui';
-import { usePaymentsConfig } from '../hooks/usePaymentsConfig';
-import { usePaymentsSync } from '../hooks/usePaymentsSync';
-import { usePaymentsWebhook } from '../hooks/usePaymentsWebhook';
 import type {
   StripeConnection,
   StripeEnvironment,
   StripeKeyConfig,
 } from '@insforge/shared-schemas';
+import { usePaymentsConfig } from '#features/payments/hooks/usePaymentsConfig';
+import { usePaymentsSync } from '#features/payments/hooks/usePaymentsSync';
+import { usePaymentsWebhook } from '#features/payments/hooks/usePaymentsWebhook';
 
 const ENVIRONMENTS: StripeEnvironment[] = ['test', 'live'];
 type PaymentsSettingsTab = 'keys' | 'sync' | 'webhooks';

@@ -2,16 +2,16 @@ import { useMemo, useState } from 'react';
 import { Settings } from 'lucide-react';
 import { useOutletContext } from 'react-router-dom';
 import { Button, Tab, Tabs } from '@insforge/ui';
-import { ErrorState, LoadingState, TableHeader } from '../../../components';
-import { cn } from '../../../lib/utils/utils';
-import { usePaymentHistory } from '../hooks/usePaymentHistory';
-import type { PaymentsOutletContext } from '../components/PaymentsLayout';
 import type {
   PaymentHistory,
   PaymentHistoryStatus,
   PaymentHistoryType,
   StripeEnvironment,
 } from '@insforge/shared-schemas';
+import { ErrorState, LoadingState, TableHeader } from '#components';
+import type { PaymentsOutletContext } from '#features/payments/components/PaymentsLayout';
+import { usePaymentHistory } from '#features/payments/hooks/usePaymentHistory';
+import { cn } from '#lib/utils/utils';
 
 const ENVIRONMENTS: StripeEnvironment[] = ['test', 'live'];
 

@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { paymentsService } from '../services/payments.service';
 import type { StripeEnvironment } from '@insforge/shared-schemas';
+import { paymentsService } from '#features/payments/services/payments.service';
 
 export function usePayments(environment: StripeEnvironment) {
   const {

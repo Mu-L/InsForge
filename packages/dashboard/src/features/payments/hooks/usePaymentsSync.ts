@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { paymentsService } from '../services/payments.service';
-import { useToast } from '../../../lib/hooks/useToast';
 import type {
   StripeEnvironment,
   SyncPaymentsEnvironmentResult,
   SyncPaymentsRequest,
   SyncPaymentsResponse,
 } from '@insforge/shared-schemas';
+import { paymentsService } from '#features/payments/services/payments.service';
+import { useToast } from '#lib/hooks/useToast';
 
 interface PaymentsSyncToast {
   type: 'success' | 'error' | 'info';

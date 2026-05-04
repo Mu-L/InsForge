@@ -2,15 +2,21 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { AlertCircle, ChevronRight, Settings } from 'lucide-react';
 import { useOutletContext } from 'react-router-dom';
 import { Button, Tab, Tabs } from '@insforge/ui';
-import { Alert, AlertDescription, AlertTitle } from '../../../components/radix';
-import { ErrorState, LoadingState, TableHeader } from '../../../components';
-import { usePayments } from '../hooks/usePayments';
-import type { PaymentsOutletContext } from '../components/PaymentsLayout';
 import type {
   StripeEnvironment,
   StripePriceMirror,
   StripeProductMirror,
 } from '@insforge/shared-schemas';
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  ErrorState,
+  LoadingState,
+  TableHeader,
+} from '#components';
+import type { PaymentsOutletContext } from '#features/payments/components/PaymentsLayout';
+import { usePayments } from '#features/payments/hooks/usePayments';
 
 const ENVIRONMENTS: StripeEnvironment[] = ['test', 'live'];
 

@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { paymentsService } from '../services/payments.service';
-import { useToast } from '../../../lib/hooks/useToast';
 import type { GetPaymentsStatusResponse, StripeEnvironment } from '@insforge/shared-schemas';
+import { paymentsService } from '#features/payments/services/payments.service';
+import { useToast } from '#lib/hooks/useToast';
 
 const PAYMENTS_STATUS_QUERY_KEY = ['payments', 'status'];
 

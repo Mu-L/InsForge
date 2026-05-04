@@ -3,7 +3,7 @@ import {
   FeatureSidebar,
   type FeatureSidebarHeaderButton,
   type FeatureSidebarListItem,
-} from '../../../components';
+} from '#components';
 
 const PAYMENTS_SIDEBAR_ITEMS: FeatureSidebarListItem[] = [
   {
