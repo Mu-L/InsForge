@@ -563,10 +563,37 @@ export class S3StorageProvider implements StorageProvider {
     if (!this.s3Client) {
       throw new Error('S3 client not initialized');
     }
+    // Destination always writes to the branch path; source falls back to the
+    // parent path on 404 so inherited (not-yet-overwritten) files can be
+    // copied. S3 CopyObject is atomic — a NoSuchKey on source leaves no
+    // partial destination, so retrying is safe.
+    const dstS3Key = this.getS3Key(dstBucket, dstKey);
+    const branchSrcKey = this.getS3Key(srcBucket, srcKey);
+    try {
+      return await this.tryCopyObject(branchSrcKey, dstS3Key);
+    } catch (err) {
+      if (!isS3NotFound(err)) {
+        throw err;
+      }
+      const parentSrcKey = this.getParentS3Key(srcBucket, srcKey);
+      if (!parentSrcKey) {
+        throw err;
+      }
+      return this.tryCopyObject(parentSrcKey, dstS3Key);
+    }
+  }
+
+  private async tryCopyObject(
+    srcS3Key: string,
+    dstS3Key: string
+  ): Promise<{ etag: string; lastModified: Date }> {
+    if (!this.s3Client) {
+      throw new Error('S3 client not initialized');
+    }
     // CopySource must be `<bucket>/<key>` with forward slashes preserved.
     // Encoding the whole key with encodeURIComponent turns '/' into '%2F' and
     // S3 then fails to resolve the source. Encode each segment individually.
-    const encodedKey = this.getS3Key(srcBucket, srcKey)
+    const encodedKey = srcS3Key
       .split('/')
       .map((seg) => encodeURIComponent(seg))
       .join('/');
@@ -574,7 +601,7 @@ export class S3StorageProvider implements StorageProvider {
     const resp = await this.s3Client.send(
       new CopyObjectCommand({
         Bucket: this.s3Bucket,
-        Key: this.getS3Key(dstBucket, dstKey),
+        Key: dstS3Key,
         CopySource: source,
       })
     );

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { S3StorageProvider } from '../../src/providers/storage/s3.provider.ts';
-import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { CopyObjectCommand, GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Readable } from 'stream';
 
 function asyncIterableFromString(s: string): AsyncIterable<Uint8Array> {
@@ -179,6 +179,53 @@ describe('S3StorageProvider — branch fallback', () => {
       const p = makeProvider('parentkey');
       const strategy = await p.getDownloadStrategy('photos', 'a.txt');
       expect(strategy.url).toContain('branchkey/photos/a.txt');
+    });
+  });
+
+  describe('copyObject', () => {
+    function copyOk(etag = 'cp') {
+      return {
+        CopyObjectResult: { ETag: `"${etag}"`, LastModified: new Date('2026-04-29') },
+      };
+    }
+
+    it('copies from branch source on first hit', async () => {
+      sendMock.mockResolvedValueOnce(copyOk());
+      const p = makeProvider('parentkey');
+      const out = await p.copyObject('photos', 'a.txt', 'photos', 'b.txt');
+      expect(out.etag).toBe('cp');
+      expect(sendMock).toHaveBeenCalledTimes(1);
+      const cmd = sendMock.mock.calls[0][0] as CopyObjectCommand;
+      expect(cmd.input.Key).toBe('branchkey/photos/b.txt');
+      expect(cmd.input.CopySource).toBe('bucket/branchkey/photos/a.txt');
+    });
+
+    it('falls back to parent source when branch returns NoSuchKey', async () => {
+      sendMock.mockRejectedValueOnce(notFoundError('NoSuchKey')).mockResolvedValueOnce(copyOk());
+      const p = makeProvider('parentkey');
+      const out = await p.copyObject('photos', 'a.txt', 'photos', 'b.txt');
+      expect(out.etag).toBe('cp');
+      expect(sendMock).toHaveBeenCalledTimes(2);
+      const branchCmd = sendMock.mock.calls[0][0] as CopyObjectCommand;
+      const parentCmd = sendMock.mock.calls[1][0] as CopyObjectCommand;
+      expect(branchCmd.input.CopySource).toBe('bucket/branchkey/photos/a.txt');
+      expect(parentCmd.input.CopySource).toBe('bucket/parentkey/photos/a.txt');
+      // Destination always stays on branch.
+      expect(parentCmd.input.Key).toBe('branchkey/photos/b.txt');
+    });
+
+    it('rethrows non-404 errors instead of falling back', async () => {
+      sendMock.mockRejectedValueOnce(Object.assign(new Error('boom'), { name: 'AccessDenied' }));
+      const p = makeProvider('parentkey');
+      await expect(p.copyObject('photos', 'a.txt', 'photos', 'b.txt')).rejects.toThrow();
+      expect(sendMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('does NOT fall back when no parent configured', async () => {
+      sendMock.mockRejectedValueOnce(notFoundError('NoSuchKey'));
+      const p = makeProvider();
+      await expect(p.copyObject('photos', 'a.txt', 'photos', 'b.txt')).rejects.toThrow();
+      expect(sendMock).toHaveBeenCalledTimes(1);
     });
   });
 });
