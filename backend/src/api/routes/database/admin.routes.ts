@@ -216,6 +216,15 @@ router.delete(
         .map((value) => value.trim())
         .filter(Boolean);
 
+      if (pkValues.length === 0) {
+        throw new AppError(
+          'pkValues must include at least one primary key value.',
+          400,
+          ERROR_CODES.INVALID_INPUT,
+          'Provide at least one non-empty primary key value.'
+        );
+      }
+
       const deletedCount = await recordsService.deleteRecords(
         schemaName,
         req.params.tableName,

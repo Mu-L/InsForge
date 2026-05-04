@@ -156,18 +156,35 @@ export function parseDatabaseTableReference(
   tableReference: string,
   defaultSchemaName: string = DEFAULT_DATABASE_SCHEMA
 ): { schemaName: string; tableName: string } {
-  const parts = tableReference.split('.');
+  const normalizedTableReference = tableReference.trim();
+
+  if (normalizedTableReference.length === 0) {
+    return {
+      schemaName: defaultSchemaName,
+      tableName: '',
+    };
+  }
+
+  const parts = normalizedTableReference.split('.');
 
   if (parts.length === 2) {
+    if (!parts[0] || !parts[1]) {
+      throw new Error(`Invalid table reference "${tableReference}"`);
+    }
+
     return {
       schemaName: parts[0],
       tableName: parts[1],
     };
   }
 
+  if (parts.length > 2) {
+    throw new Error(`Invalid table reference "${tableReference}"`);
+  }
+
   return {
     schemaName: defaultSchemaName,
-    tableName: tableReference,
+    tableName: normalizedTableReference,
   };
 }
 

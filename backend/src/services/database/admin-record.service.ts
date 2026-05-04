@@ -21,10 +21,11 @@ interface ListTableRecordsOptions {
 
 interface TableColumnMetadata {
   columnTypeMap: Record<string, string>;
+  nullableColumns: Set<string>;
   searchableColumns: string[];
 }
 
-const SEARCHABLE_DATA_TYPES = new Set(['text', 'character varying', 'character']);
+const TEXT_LIKE_DATA_TYPES = new Set(['text', 'character varying', 'character', 'citext']);
 
 export class AdminRecordService {
   private static instance: AdminRecordService;
@@ -233,10 +234,11 @@ export class AdminRecordService {
     const result = await this.dbManager.getPool().query<{
       column_name: string;
       data_type: string;
+      is_nullable: string;
       udt_name: string;
     }>(
       `
-        SELECT column_name, data_type, udt_name
+        SELECT column_name, data_type, is_nullable, udt_name
         FROM information_schema.columns
         WHERE table_schema = $1
           AND table_name = $2
@@ -255,21 +257,29 @@ export class AdminRecordService {
     }
 
     const columnTypeMap: Record<string, string> = {};
+    const nullableColumns = new Set<string>();
     const searchableColumns: string[] = [];
 
     for (const row of result.rows) {
-      columnTypeMap[row.column_name] = row.data_type;
+      const normalizedDataType =
+        row.data_type.toLowerCase() === 'user-defined'
+          ? row.udt_name.toLowerCase()
+          : row.data_type.toLowerCase();
 
-      if (
-        SEARCHABLE_DATA_TYPES.has(row.data_type.toLowerCase()) ||
-        row.udt_name.toLowerCase() === 'citext'
-      ) {
+      columnTypeMap[row.column_name] = normalizedDataType;
+
+      if (TEXT_LIKE_DATA_TYPES.has(normalizedDataType)) {
         searchableColumns.push(row.column_name);
+      }
+
+      if (row.is_nullable === 'YES') {
+        nullableColumns.add(row.column_name);
       }
     }
 
     return {
       columnTypeMap,
+      nullableColumns,
       searchableColumns,
     };
   }
@@ -329,7 +339,7 @@ export class AdminRecordService {
     for (const [columnName, value] of Object.entries(record)) {
       this.assertColumnExists(metadata, columnName);
 
-      if (value === '' && metadata.columnTypeMap[columnName] !== 'text') {
+      if (value === '' && !TEXT_LIKE_DATA_TYPES.has(metadata.columnTypeMap[columnName] ?? '')) {
         continue;
       }
 
@@ -348,8 +358,25 @@ export class AdminRecordService {
     for (const [columnName, value] of Object.entries(record)) {
       this.assertColumnExists(metadata, columnName);
 
-      if (value === '' && metadata.columnTypeMap[columnName] === 'uuid') {
-        continue;
+      if (value === '') {
+        const columnType = metadata.columnTypeMap[columnName] ?? '';
+
+        if (TEXT_LIKE_DATA_TYPES.has(columnType)) {
+          sanitizedRecord[columnName] = value;
+          continue;
+        }
+
+        if (metadata.nullableColumns.has(columnName)) {
+          sanitizedRecord[columnName] = null;
+          continue;
+        }
+
+        throw new AppError(
+          `Column "${columnName}" cannot be blank.`,
+          400,
+          ERROR_CODES.INVALID_INPUT,
+          'Provide a value for required fields or clear only nullable non-text fields.'
+        );
       }
 
       sanitizedRecord[columnName] = value;

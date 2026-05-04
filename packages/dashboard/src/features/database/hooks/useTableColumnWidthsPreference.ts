@@ -95,6 +95,10 @@ function filterWidthsByColumns(
   return filtered;
 }
 
+function buildTableStorageKey(schemaName: string, tableName: string): string {
+  return JSON.stringify([schemaName, tableName]);
+}
+
 export function useTableColumnWidthsPreference(
   tableName: string | null,
   schemaName: string = 'public',
@@ -193,7 +197,7 @@ export function useTableColumnWidthsPreference(
       return null;
     }
 
-    return `${schemaName}.${tableName}`;
+    return buildTableStorageKey(schemaName, tableName);
   }, [schemaName, tableName]);
 
   const columnWidths = useMemo(() => {

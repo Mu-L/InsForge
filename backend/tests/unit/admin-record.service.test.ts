@@ -28,8 +28,8 @@ describe('AdminRecordService', () => {
     poolQueryMock
       .mockResolvedValueOnce({
         rows: [
-          { column_name: 'id', data_type: 'uuid', udt_name: 'uuid' },
-          { column_name: 'email', data_type: 'text', udt_name: 'text' },
+          { column_name: 'id', data_type: 'uuid', is_nullable: 'NO', udt_name: 'uuid' },
+          { column_name: 'email', data_type: 'text', is_nullable: 'NO', udt_name: 'text' },
         ],
       })
       .mockResolvedValueOnce({ rows: [{ total: '2' }] })
@@ -67,13 +67,13 @@ describe('AdminRecordService', () => {
     expect(connectMock).not.toHaveBeenCalled();
   });
 
-  it('updates public records and strips blank uuid values from the payload', async () => {
+  it('updates public records and converts blank nullable uuid values to null', async () => {
     poolQueryMock
       .mockResolvedValueOnce({
         rows: [
-          { column_name: 'id', data_type: 'uuid', udt_name: 'uuid' },
-          { column_name: 'owner_id', data_type: 'uuid', udt_name: 'uuid' },
-          { column_name: 'name', data_type: 'text', udt_name: 'text' },
+          { column_name: 'id', data_type: 'uuid', is_nullable: 'NO', udt_name: 'uuid' },
+          { column_name: 'owner_id', data_type: 'uuid', is_nullable: 'YES', udt_name: 'uuid' },
+          { column_name: 'name', data_type: 'text', is_nullable: 'NO', udt_name: 'text' },
         ],
       })
       .mockResolvedValueOnce({
@@ -88,8 +88,89 @@ describe('AdminRecordService', () => {
 
     expect(record).toEqual({ id: 'p1', owner_id: null, name: 'Renamed project' });
     expect(poolQueryMock.mock.calls[1]?.[0]).toContain(
-      'SET "name" = $1 WHERE "id" = $2 RETURNING *'
+      'SET "owner_id" = $1, "name" = $2 WHERE "id" = $3 RETURNING *'
     );
-    expect(poolQueryMock.mock.calls[1]?.[1]).toEqual(['Renamed project', 'p1']);
+    expect(poolQueryMock.mock.calls[1]?.[1]).toEqual([null, 'Renamed project', 'p1']);
+  });
+
+  it('preserves empty strings for character varying inserts', async () => {
+    const clientQueryMock = vi
+      .fn()
+      .mockResolvedValueOnce({}) // BEGIN
+      .mockResolvedValueOnce({
+        rows: [{ id: 'r1', name: '' }],
+      }) // INSERT
+      .mockResolvedValueOnce({}); // COMMIT
+
+    connectMock.mockResolvedValue({
+      query: clientQueryMock,
+      release: vi.fn(),
+    });
+
+    poolQueryMock.mockResolvedValueOnce({
+      rows: [
+        { column_name: 'id', data_type: 'uuid', is_nullable: 'NO', udt_name: 'uuid' },
+        {
+          column_name: 'name',
+          data_type: 'character varying',
+          is_nullable: 'YES',
+          udt_name: 'varchar',
+        },
+      ],
+    });
+
+    const service = AdminRecordService.getInstance();
+    const result = await service.createRecords('public', 'projects', [{ name: '' }]);
+
+    expect(result).toEqual([{ id: 'r1', name: '' }]);
+    expect(clientQueryMock.mock.calls[1]?.[1]).toEqual(['']);
+  });
+
+  it('converts blank updates on nullable non-text columns to null', async () => {
+    poolQueryMock
+      .mockResolvedValueOnce({
+        rows: [
+          { column_name: 'id', data_type: 'uuid', is_nullable: 'NO', udt_name: 'uuid' },
+          {
+            column_name: 'priority',
+            data_type: 'integer',
+            is_nullable: 'YES',
+            udt_name: 'int4',
+          },
+        ],
+      })
+      .mockResolvedValueOnce({
+        rows: [{ id: 'p1', priority: null }],
+      });
+
+    const service = AdminRecordService.getInstance();
+    const record = await service.updateRecord('public', 'projects', 'id', 'p1', {
+      priority: '',
+    });
+
+    expect(record).toEqual({ id: 'p1', priority: null });
+    expect(poolQueryMock.mock.calls[1]?.[1]).toEqual([null, 'p1']);
+  });
+
+  it('rejects blank updates on required non-text columns with a 400', async () => {
+    poolQueryMock.mockResolvedValueOnce({
+      rows: [
+        { column_name: 'id', data_type: 'uuid', is_nullable: 'NO', udt_name: 'uuid' },
+        {
+          column_name: 'priority',
+          data_type: 'integer',
+          is_nullable: 'NO',
+          udt_name: 'int4',
+        },
+      ],
+    });
+
+    const service = AdminRecordService.getInstance();
+
+    await expect(
+      service.updateRecord('public', 'projects', 'id', 'p1', {
+        priority: '',
+      })
+    ).rejects.toBeInstanceOf(AppError);
   });
 });

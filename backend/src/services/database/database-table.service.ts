@@ -184,7 +184,11 @@ export class DatabaseTableService {
     });
 
     const client = await this.getPool().connect();
+    let transactionStarted = false;
     try {
+      await client.query('BEGIN');
+      transactionStarted = true;
+
       const safeQualifiedTableName = quoteQualifiedName(schemaName, table_name);
 
       // Check if table exists
@@ -275,7 +279,7 @@ export class DatabaseTableService {
       // Update metadata
       // Metadata is now updated on-demand
 
-      return {
+      const response = {
         schemaName,
         message: 'table created successfully',
         tableName: table_name,
@@ -287,6 +291,16 @@ export class DatabaseTableService {
         nextActions:
           'you can now use the table with the POST /api/database/tables/{table} endpoint',
       };
+
+      await client.query('COMMIT');
+      transactionStarted = false;
+      return response;
+    } catch (error) {
+      if (transactionStarted) {
+        await client.query('ROLLBACK');
+        transactionStarted = false;
+      }
+      throw error;
     } finally {
       client.release();
     }
@@ -441,7 +455,11 @@ export class DatabaseTableService {
       operations;
 
     const client = await this.getPool().connect();
+    let transactionStarted = false;
     try {
+      await client.query('BEGIN');
+      transactionStarted = true;
+
       const safeQualifiedTableName = quoteQualifiedName(schemaName, tableName);
 
       // Check if table exists
@@ -656,12 +674,22 @@ export class DatabaseTableService {
         `
       );
 
-      return {
+      const response = {
         schemaName,
         message: 'table schema updated successfully',
         tableName,
         operations: completedOperations,
       };
+
+      await client.query('COMMIT');
+      transactionStarted = false;
+      return response;
+    } catch (error) {
+      if (transactionStarted) {
+        await client.query('ROLLBACK');
+        transactionStarted = false;
+      }
+      throw error;
     } finally {
       client.release();
     }

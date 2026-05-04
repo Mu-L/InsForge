@@ -44,7 +44,7 @@ export function useTables(schemaName: string = DEFAULT_DATABASE_SCHEMA) {
     mutationFn: ({ tableName, columns }: { tableName: string; columns: ColumnSchema[] }) =>
       tableService.createTable(schemaName, tableName, columns),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['database', 'tables'] });
+      void queryClient.invalidateQueries({ queryKey: databaseTableQueryKeys.tables(schemaName) });
       showToast('Table created successfully', 'success');
     },
     onError: (error: Error) => {
@@ -57,7 +57,7 @@ export function useTables(schemaName: string = DEFAULT_DATABASE_SCHEMA) {
   const deleteTableMutation = useMutation({
     mutationFn: (tableName: string) => tableService.deleteTable(tableName, schemaName),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['database', 'tables'] });
+      void queryClient.invalidateQueries({ queryKey: databaseTableQueryKeys.tables(schemaName) });
       showToast('Table deleted successfully', 'success');
     },
     onError: (error: Error) => {

@@ -22,7 +22,7 @@ export class RecordService {
     }
 
     const query = nextParams.toString();
-    return `/database/admin/tables/${tableName}/records${suffix}${query ? `?${query}` : ''}`;
+    return `/database/admin/tables/${encodeURIComponent(tableName)}/records${suffix}${query ? `?${query}` : ''}`;
   }
 
   private buildSortParam(sortColumns?: { columnKey: string; direction: string }[]): string | null {
