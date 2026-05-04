@@ -4,7 +4,7 @@ import { databaseSchemaQueryKeys } from '#features/database/queryKeys';
 
 export function useDatabaseSchemas(enabled = true) {
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: databaseSchemaQueryKeys.list,
+    queryKey: databaseSchemaQueryKeys.allSchemas,
     queryFn: () => databaseService.getSchemas(),
     staleTime: 5 * 60 * 1000,
     enabled,

@@ -265,16 +265,16 @@ export function SocketProvider({ children }: SocketProviderProps) {
             switch (change.type) {
               case 'tables':
                 // CREATE TABLE / DROP TABLE - affects table list
-                void queryClient.invalidateQueries({ queryKey: databaseTableQueryKeys.listRoot });
+                void queryClient.invalidateQueries({ queryKey: ['database', 'tables'] });
                 void queryClient.invalidateQueries({ queryKey: ['metadata', 'full'] });
                 break;
               case 'table':
                 // ALTER TABLE / RENAME - affects specific table and list
-                void queryClient.invalidateQueries({ queryKey: databaseTableQueryKeys.listRoot });
+                void queryClient.invalidateQueries({ queryKey: ['database', 'tables'] });
                 if (change.name) {
                   const { schemaName, tableName } = parseDatabaseTableReference(change.name);
                   void queryClient.invalidateQueries({
-                    queryKey: databaseTableQueryKeys.schema(schemaName, tableName),
+                    queryKey: databaseTableQueryKeys.tableSchema(schemaName, tableName),
                   });
                 }
                 break;

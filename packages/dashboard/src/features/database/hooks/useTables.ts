@@ -20,7 +20,7 @@ export function useTables(schemaName: string = DEFAULT_DATABASE_SCHEMA) {
     error: tablesError,
     refetch: refetchTables,
   } = useQuery({
-    queryKey: databaseTableQueryKeys.list(schemaName),
+    queryKey: databaseTableQueryKeys.tables(schemaName),
     queryFn: () => tableService.listTables(schemaName),
     staleTime: 2 * 60 * 1000,
   });
@@ -32,7 +32,7 @@ export function useTables(schemaName: string = DEFAULT_DATABASE_SCHEMA) {
     enabled = true
   ) => {
     return useQuery({
-      queryKey: databaseTableQueryKeys.schema(tableSchemaName, tableName),
+      queryKey: databaseTableQueryKeys.tableSchema(tableSchemaName, tableName),
       queryFn: () => tableService.getTableSchema(tableName, tableSchemaName),
       enabled: enabled && !!tableName,
       staleTime: 2 * 60 * 1000,
@@ -44,7 +44,7 @@ export function useTables(schemaName: string = DEFAULT_DATABASE_SCHEMA) {
     mutationFn: ({ tableName, columns }: { tableName: string; columns: ColumnSchema[] }) =>
       tableService.createTable(schemaName, tableName, columns),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: databaseTableQueryKeys.listRoot });
+      void queryClient.invalidateQueries({ queryKey: ['database', 'tables'] });
       showToast('Table created successfully', 'success');
     },
     onError: (error: Error) => {
@@ -57,7 +57,7 @@ export function useTables(schemaName: string = DEFAULT_DATABASE_SCHEMA) {
   const deleteTableMutation = useMutation({
     mutationFn: (tableName: string) => tableService.deleteTable(tableName, schemaName),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: databaseTableQueryKeys.listRoot });
+      void queryClient.invalidateQueries({ queryKey: ['database', 'tables'] });
       showToast('Table deleted successfully', 'success');
     },
     onError: (error: Error) => {
@@ -77,7 +77,7 @@ export function useTables(schemaName: string = DEFAULT_DATABASE_SCHEMA) {
     }) => tableService.updateTableSchema(tableName, operations, schemaName),
     onSuccess: (_, { tableName }) => {
       void queryClient.invalidateQueries({
-        queryKey: databaseTableQueryKeys.schema(schemaName, tableName),
+        queryKey: databaseTableQueryKeys.tableSchema(schemaName, tableName),
       });
       showToast('Table schema updated successfully', 'success');
     },
@@ -123,7 +123,7 @@ export function useAllTableSchemas(schemaName: string = DEFAULT_DATABASE_SCHEMA,
   const { allSchemas, isLoadingSchemas } = useQueries({
     queries: enabled
       ? tables.map((tableName) => ({
-          queryKey: databaseTableQueryKeys.schema(schemaName, tableName),
+          queryKey: databaseTableQueryKeys.tableSchema(schemaName, tableName),
           queryFn: () => tableService.getTableSchema(tableName, schemaName),
           staleTime: 2 * 60 * 1000,
         }))

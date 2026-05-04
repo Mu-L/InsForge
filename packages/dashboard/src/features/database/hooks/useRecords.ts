@@ -71,7 +71,7 @@ export function useRecords(tableName: string, schemaName: string = DEFAULT_DATAB
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: recordsQueryKeyPrefix });
       void queryClient.invalidateQueries({
-        queryKey: databaseTableQueryKeys.schema(schemaName, tableName),
+        queryKey: databaseTableQueryKeys.tableSchema(schemaName, tableName),
       });
       showToast('Record created successfully', 'success');
     },
@@ -88,7 +88,7 @@ export function useRecords(tableName: string, schemaName: string = DEFAULT_DATAB
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: recordsQueryKeyPrefix });
       void queryClient.invalidateQueries({
-        queryKey: databaseTableQueryKeys.schema(schemaName, tableName),
+        queryKey: databaseTableQueryKeys.tableSchema(schemaName, tableName),
       });
       showToast('Records created successfully', 'success');
     },
@@ -112,7 +112,7 @@ export function useRecords(tableName: string, schemaName: string = DEFAULT_DATAB
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: recordsQueryKeyPrefix });
       void queryClient.invalidateQueries({
-        queryKey: databaseTableQueryKeys.schema(schemaName, tableName),
+        queryKey: databaseTableQueryKeys.tableSchema(schemaName, tableName),
       });
       showToast('Record updated successfully', 'success');
     },
@@ -129,7 +129,7 @@ export function useRecords(tableName: string, schemaName: string = DEFAULT_DATAB
     onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({ queryKey: recordsQueryKeyPrefix });
       void queryClient.invalidateQueries({
-        queryKey: databaseTableQueryKeys.schema(schemaName, tableName),
+        queryKey: databaseTableQueryKeys.tableSchema(schemaName, tableName),
       });
       const count = variables.pkValues.length;
       if (count === 1) {

@@ -66,7 +66,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       queryClient.invalidateQueries({ queryKey: ['apiKey'] }),
       queryClient.invalidateQueries({ queryKey: ['metadata'] }),
       queryClient.invalidateQueries({ queryKey: ['users'] }),
-      queryClient.invalidateQueries({ queryKey: databaseTableQueryKeys.listRoot }),
+      queryClient.invalidateQueries({ queryKey: ['database', 'tables'] }),
       queryClient.invalidateQueries({ queryKey: ['mcp-usage'] }),
     ]);
   }, [queryClient]);

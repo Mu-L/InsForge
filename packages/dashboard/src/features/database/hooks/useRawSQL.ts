@@ -26,8 +26,8 @@ export function useRawSQL(options?: UseRawSQLOptions) {
     },
     onSuccess: (data) => {
       // Invalidate database schema queries to ensure UI reflects any schema changes
-      void queryClient.invalidateQueries({ queryKey: databaseTableQueryKeys.listRoot });
-      void queryClient.invalidateQueries({ queryKey: databaseTableQueryKeys.schemaRoot });
+      void queryClient.invalidateQueries({ queryKey: ['database', 'tables'] });
+      void queryClient.invalidateQueries({ queryKey: ['database', 'table-schemas'] });
 
       if (options?.showSuccessToast !== false) {
         const message = 'SQL query executed successfully';

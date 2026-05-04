@@ -235,7 +235,7 @@ export function TableForm({
     },
     onSuccess: (data) => {
       void queryClient.invalidateQueries({ queryKey: ['database-metadata'] });
-      void queryClient.invalidateQueries({ queryKey: databaseTableQueryKeys.listRoot });
+      void queryClient.invalidateQueries({ queryKey: ['database', 'tables'] });
       void queryClient.invalidateQueries({ queryKey: ['metadata'] });
 
       showToast('Table created successfully!', 'success');
@@ -376,16 +376,16 @@ export function TableForm({
     },
     onSuccess: (_, data) => {
       void queryClient.invalidateQueries({ queryKey: ['database-metadata'] });
-      void queryClient.invalidateQueries({ queryKey: databaseTableQueryKeys.listRoot });
+      void queryClient.invalidateQueries({ queryKey: ['database', 'tables'] });
       void queryClient.invalidateQueries({ queryKey: ['metadata'] });
       if (editTable?.tableName) {
         void queryClient.invalidateQueries({
-          queryKey: databaseTableQueryKeys.schema(schemaName, editTable.tableName),
+          queryKey: databaseTableQueryKeys.tableSchema(schemaName, editTable.tableName),
         });
       }
       if (data.tableName !== editTable?.tableName) {
         void queryClient.invalidateQueries({
-          queryKey: databaseTableQueryKeys.schema(schemaName, data.tableName),
+          queryKey: databaseTableQueryKeys.tableSchema(schemaName, data.tableName),
         });
       }
 
