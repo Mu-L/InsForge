@@ -1,8 +1,8 @@
 import { ConvertedValue } from '#components/datagrid/datagridTypes';
+import { DEFAULT_DATABASE_SCHEMA } from '#features/database/helpers';
 import { databaseTableQueryKeys } from '#features/database/queryKeys';
 import { recordService } from '#features/database/services/record.service';
 import { useToast } from '#lib/hooks/useToast';
-import { DEFAULT_DATABASE_SCHEMA } from '@insforge/shared-schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 export function useRecords(tableName: string, schemaName: string = DEFAULT_DATABASE_SCHEMA) {

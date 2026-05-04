@@ -1,12 +1,28 @@
 import { jsonSchema } from '#lib/utils/schemaValidations';
-import {
-  ColumnSchema,
-  ColumnType,
-  DEFAULT_DATABASE_SCHEMA,
-  isInsForgeManagedDatabaseSchema,
-  type DatabaseSchemaInfo,
-} from '@insforge/shared-schemas';
+import { ColumnSchema, ColumnType, type DatabaseSchemaInfo } from '@insforge/shared-schemas';
 import { z } from 'zod';
+
+export const DEFAULT_DATABASE_SCHEMA = 'public' as const;
+
+export const INSFORGE_MANAGED_DATABASE_SCHEMAS = [
+  'ai',
+  'auth',
+  'compute',
+  'cron',
+  'deployments',
+  'email',
+  'functions',
+  'realtime',
+  'schedules',
+  'storage',
+  'system',
+] as const;
+
+const insforgeManagedDatabaseSchemaSet = new Set<string>(INSFORGE_MANAGED_DATABASE_SCHEMAS);
+
+export function isInsForgeManagedDatabaseSchema(schemaName: string): boolean {
+  return insforgeManagedDatabaseSchemaSet.has(schemaName);
+}
 
 export const SYSTEM_FIELDS = ['id', 'created_at', 'updated_at'];
 

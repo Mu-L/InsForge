@@ -232,6 +232,14 @@ describe('checkManagedSchemaWriteOperations', () => {
     ).not.toBeNull();
   });
 
+  it('blocks INSERT on cron schema', () => {
+    expect(
+      checkManagedSchemaWriteOperations(
+        "INSERT INTO cron.job (schedule, command) VALUES ('* * * * *', 'SELECT 1')"
+      )
+    ).not.toBeNull();
+  });
+
   it('blocks CREATE POLICY on auth schema', () => {
     expect(
       checkManagedSchemaWriteOperations('CREATE POLICY p ON auth.users FOR SELECT USING (true)')

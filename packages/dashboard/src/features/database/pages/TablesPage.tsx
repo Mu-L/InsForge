@@ -38,8 +38,7 @@ import { useCSVImport } from '#features/database/hooks/useCSVImport';
 import { useTableColumnWidthsPreference } from '#features/database/hooks/useTableColumnWidthsPreference';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { usePageSize } from '#lib/hooks/usePageSize';
-import { DEFAULT_DATABASE_SCHEMA } from '@insforge/shared-schemas';
-import { getDatabaseSchemaInfo } from '#features/database/helpers';
+import { DEFAULT_DATABASE_SCHEMA, getDatabaseSchemaInfo } from '#features/database/helpers';
 
 export default function TablesPage() {
   const location = useLocation();

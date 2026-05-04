@@ -63,7 +63,7 @@ describe('DatabaseMigrationService', () => {
       service.createMigration({
         version: '202605020001',
         name: 'protected-write',
-        sql: 'INSERT INTO auth.users (email) VALUES (\'demo@example.com\')',
+        sql: "INSERT INTO auth.users (email) VALUES ('demo@example.com')",
       })
     ).rejects.toMatchObject({
       statusCode: 403,
@@ -71,7 +71,7 @@ describe('DatabaseMigrationService', () => {
     });
 
     expect(checkManagedSchemaWriteOperationsMock).toHaveBeenCalledWith(
-      'INSERT INTO auth.users (email) VALUES (\'demo@example.com\')'
+      "INSERT INTO auth.users (email) VALUES ('demo@example.com')"
     );
     expect(connectMock).not.toHaveBeenCalled();
   });

@@ -94,11 +94,7 @@ router.get(
       const schemaName = normalizeDatabaseSchemaName(req.query.schema);
       const validation = adminTableRecordsListQuerySchema.safeParse(req.query);
       if (!validation.success) {
-        throw new AppError(
-          getValidationMessage(validation.error),
-          400,
-          ERROR_CODES.INVALID_INPUT
-        );
+        throw new AppError(getValidationMessage(validation.error), 400, ERROR_CODES.INVALID_INPUT);
       }
 
       const { limit, offset, search, sort, filterColumn, filterValue } = validation.data;
@@ -125,11 +121,7 @@ router.get(
       const schemaName = normalizeDatabaseSchemaName(req.query.schema);
       const validation = adminTableRecordLookupQuerySchema.safeParse(req.query);
       if (!validation.success) {
-        throw new AppError(
-          getValidationMessage(validation.error),
-          400,
-          ERROR_CODES.INVALID_INPUT
-        );
+        throw new AppError(getValidationMessage(validation.error), 400, ERROR_CODES.INVALID_INPUT);
       }
 
       const record = await recordsService.lookupRecord(
@@ -153,11 +145,7 @@ router.post(
       const schemaName = normalizeDatabaseSchemaName(req.query.schema);
       const validation = adminTableRecordsCreateRequestSchema.safeParse(req.body);
       if (!validation.success) {
-        throw new AppError(
-          getValidationMessage(validation.error),
-          400,
-          ERROR_CODES.INVALID_INPUT
-        );
+        throw new AppError(getValidationMessage(validation.error), 400, ERROR_CODES.INVALID_INPUT);
       }
 
       const createdRecords = await recordsService.createRecords(
@@ -220,11 +208,7 @@ router.delete(
       const schemaName = normalizeDatabaseSchemaName(req.query.schema);
       const validation = adminTableRecordsDeleteQuerySchema.safeParse(req.query);
       if (!validation.success) {
-        throw new AppError(
-          getValidationMessage(validation.error),
-          400,
-          ERROR_CODES.INVALID_INPUT
-        );
+        throw new AppError(getValidationMessage(validation.error), 400, ERROR_CODES.INVALID_INPUT);
       }
 
       const pkValues = validation.data.pkValues

@@ -15,9 +15,9 @@ import { useDatabaseSchemas, useFunctions } from '#features/database/hooks/useDa
 import { useDatabaseSchemaSelection } from '#features/database/hooks/useDatabaseSchemaSelection';
 import { SQLModal, SQLCellButton } from '#features/database/components/SQLModal';
 import { DatabaseStudioSidebarPanel } from '#features/database/components/DatabaseSidebar';
-import { DEFAULT_DATABASE_SCHEMA, type DatabaseFunctionsResponse } from '@insforge/shared-schemas';
+import { type DatabaseFunctionsResponse } from '@insforge/shared-schemas';
 import { DatabaseSchemaSelect } from '#features/database/components/DatabaseSchemaSelect';
-import { getDatabaseSchemaInfo } from '#features/database/helpers';
+import { DEFAULT_DATABASE_SCHEMA, getDatabaseSchemaInfo } from '#features/database/helpers';
 
 interface FunctionRow extends DataGridRowType {
   id: string;

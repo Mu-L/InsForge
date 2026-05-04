@@ -1,11 +1,32 @@
 import { AppError } from '@/api/middlewares/error.js';
 import { ERROR_CODES } from '@/types/error-constants.js';
 import { validateIdentifier, validateSchemaName, validateTableName } from '@/utils/validations.js';
-import {
-  DEFAULT_DATABASE_SCHEMA,
-  isDashboardSupportedDatabaseSchema,
-  isInsForgeManagedDatabaseSchema,
-} from '@insforge/shared-schemas';
+
+export const DEFAULT_DATABASE_SCHEMA = 'public' as const;
+
+export const INSFORGE_MANAGED_DATABASE_SCHEMAS = [
+  'ai',
+  'auth',
+  'compute',
+  'cron',
+  'deployments',
+  'email',
+  'functions',
+  'realtime',
+  'schedules',
+  'storage',
+  'system',
+] as const;
+
+const insforgeManagedDatabaseSchemaSet = new Set<string>(INSFORGE_MANAGED_DATABASE_SCHEMAS);
+
+export function isInternalDashboardSchema(schemaName: string): boolean {
+  return schemaName === 'information_schema' || schemaName.startsWith('pg_');
+}
+
+export function isInsForgeManagedDatabaseSchema(schemaName: string): boolean {
+  return insforgeManagedDatabaseSchemaSet.has(schemaName);
+}
 
 export function normalizeDatabaseSchemaName(schemaName: unknown): string {
   if (typeof schemaName !== 'string' || schemaName.trim().length === 0) {
@@ -15,12 +36,12 @@ export function normalizeDatabaseSchemaName(schemaName: unknown): string {
   const normalizedSchemaName = schemaName.trim();
   validateSchemaName(normalizedSchemaName);
 
-  if (!isDashboardSupportedDatabaseSchema(normalizedSchemaName)) {
+  if (isInternalDashboardSchema(normalizedSchemaName)) {
     throw new AppError(
-      `Schema "${normalizedSchemaName}" is not supported in the dashboard.`,
+      `Schema "${normalizedSchemaName}" is not available in the dashboard.`,
       400,
       ERROR_CODES.INVALID_INPUT,
-      'Only public and the built-in protected schemas are supported in the dashboard right now.'
+      'Internal PostgreSQL and platform schemas cannot be queried from the dashboard.'
     );
   }
 

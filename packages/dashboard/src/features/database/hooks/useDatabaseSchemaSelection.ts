@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { DEFAULT_DATABASE_SCHEMA } from '@insforge/shared-schemas';
+import { DEFAULT_DATABASE_SCHEMA } from '#features/database/helpers';
 
 interface SetDatabaseSchemaOptions {
   replace?: boolean;

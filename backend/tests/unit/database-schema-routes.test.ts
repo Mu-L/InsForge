@@ -24,7 +24,9 @@ describe('database schema route wiring', () => {
   it('mounts a separate admin database router for dashboard-only record access', () => {
     expect(indexRoutesSource).toContain("router.use('/admin', databaseAdminRouter);");
     expect(adminRoutesSource).toMatch(/router\.get\(\s*'\/tables\/:tableName\/records'/);
-    expect(adminRoutesSource).toContain('paginatedResponse(res, response.records, response.total, offset);');
+    expect(adminRoutesSource).toContain(
+      'paginatedResponse(res, response.records, response.total, offset);'
+    );
     expect(adminRoutesSource).not.toContain('PostgrestProxyService');
   });
 

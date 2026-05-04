@@ -1,10 +1,10 @@
 import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
+import { DEFAULT_DATABASE_SCHEMA } from '#features/database/helpers';
 import { tableService } from '#features/database/services/table.service';
 import { databaseTableQueryKeys } from '#features/database/queryKeys';
 import { useToast } from '#lib/hooks/useToast';
 import {
   ColumnSchema,
-  DEFAULT_DATABASE_SCHEMA,
   GetTableSchemaResponse,
   UpdateTableSchemaRequest,
 } from '@insforge/shared-schemas';

@@ -2,7 +2,6 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { useQueryClient } from '@tanstack/react-query';
 import { useLocation } from 'react-router-dom';
 import { loginService } from '#features/login/services/login.service';
-import { databaseTableQueryKeys } from '#features/database/queryKeys';
 import { useDashboardHost } from '#lib/config/DashboardHostContext';
 import { apiClient } from '#lib/api/client';
 import { getCurrentDistinctId, identifyUser } from '#lib/analytics/posthog';

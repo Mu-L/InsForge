@@ -13,7 +13,6 @@ import {
   ColumnSchema,
   ColumnType,
   CreateTableResponse,
-  DEFAULT_DATABASE_SCHEMA,
   GetTableSchemaResponse,
   UpdateTableSchemaRequest,
   UpdateTableSchemaResponse,
@@ -26,6 +25,7 @@ import { validateIdentifier, validateSchemaName } from '@/utils/validations.js';
 import { convertSqlTypeToColumnType } from '@/utils/utils.js';
 import {
   assertWritableDatabaseSchema,
+  DEFAULT_DATABASE_SCHEMA,
   quoteQualifiedName,
   splitQualifiedTableReference,
 } from './helpers.js';

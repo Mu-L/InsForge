@@ -16,9 +16,8 @@ import { useToast } from '#lib/hooks/useToast';
 import { TableFormColumn } from './TableFormColumn';
 import { ForeignKeyPopover } from './ForeignKeyPopover';
 import { ColumnType, TableSchema, UpdateTableSchemaRequest } from '@insforge/shared-schemas';
-import { SYSTEM_FIELDS } from '#features/database/helpers';
+import { parseDatabaseTableReference, SYSTEM_FIELDS } from '#features/database/helpers';
 import { databaseTableQueryKeys } from '#features/database/queryKeys';
-import { parseDatabaseTableReference } from '#features/database/helpers';
 
 const newColumn: TableFormColumnSchema = {
   columnName: '',
@@ -176,7 +175,7 @@ export function TableForm({
       });
       setForeignKeys([]);
     }
-  }, [mode, editTable, form, open]);
+  }, [editTable, form, mode, open, schemaName]);
 
   useEffect(() => {
     setFormIsDirty(form.formState.isDirty);

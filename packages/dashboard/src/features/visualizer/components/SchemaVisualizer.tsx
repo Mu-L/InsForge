@@ -16,10 +16,10 @@ import { TableNode } from './TableNode';
 import { AuthNode } from './AuthNode';
 import { BucketNode } from './BucketNode';
 import { useAllTableSchemas } from '#features/database/hooks/useTables';
+import { DEFAULT_DATABASE_SCHEMA } from '#features/database/helpers';
 import { useTheme } from '#lib/contexts/ThemeContext';
 import {
   StorageBucketSchema,
-  DEFAULT_DATABASE_SCHEMA,
   GetTableSchemaResponse,
   DatabaseMetadataSchema,
   StorageMetadataSchema,

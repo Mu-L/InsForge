@@ -1,7 +1,7 @@
 import splitSqlQuery from '@databases/split-sql-query';
 import sql from '@databases/sql';
 import { parseSync, loadModule } from 'libpg-query';
-import { INSFORGE_MANAGED_DATABASE_SCHEMAS } from '@insforge/shared-schemas';
+import { INSFORGE_MANAGED_DATABASE_SCHEMAS } from '@/services/database/helpers.js';
 import logger from './logger.js';
 
 let initialized = false;
@@ -247,7 +247,8 @@ function getDropObjectSchema(obj: Record<string, unknown>): string | null {
   }
 
   if (obj.List) {
-    const items = ((obj.List as Record<string, unknown>).items as Array<Record<string, unknown>>) ?? [];
+    const items =
+      ((obj.List as Record<string, unknown>).items as Array<Record<string, unknown>>) ?? [];
     return items.length > 1 ? getSchemaFromNameList(items) : null;
   }
 
@@ -287,7 +288,9 @@ export function checkManagedSchemaWriteOperations(
   query: string,
   protectedSchemaNames: readonly string[] = INSFORGE_MANAGED_DATABASE_SCHEMAS
 ): string | null {
-  const protectedSchemas = new Set(protectedSchemaNames.map((schemaName) => schemaName.toLowerCase()));
+  const protectedSchemas = new Set(
+    protectedSchemaNames.map((schemaName) => schemaName.toLowerCase())
+  );
 
   try {
     const { stmts } = parseSync(query);
@@ -297,7 +300,10 @@ export function checkManagedSchemaWriteOperations(
       const [stmtType, data] = Object.entries(stmt)[0] as [string, Record<string, unknown>];
 
       if (stmtType === 'CreateSchemaStmt') {
-        const schemaName = getProtectedSchema((data.schemaname as string) ?? null, protectedSchemas);
+        const schemaName = getProtectedSchema(
+          (data.schemaname as string) ?? null,
+          protectedSchemas
+        );
         if (schemaName) {
           return buildManagedSchemaWriteError(schemaName);
         }
@@ -313,7 +319,9 @@ export function checkManagedSchemaWriteOperations(
       if (stmtType === 'CreateFunctionStmt') {
         const funcname = (data.funcname as Array<Record<string, unknown>>) ?? [];
         const schemaName =
-          funcname.length > 1 ? getProtectedSchema(getSchemaFromNameList(funcname), protectedSchemas) : null;
+          funcname.length > 1
+            ? getProtectedSchema(getSchemaFromNameList(funcname), protectedSchemas)
+            : null;
         if (schemaName) {
           return buildManagedSchemaWriteError(schemaName);
         }
@@ -323,7 +331,9 @@ export function checkManagedSchemaWriteOperations(
         const func = data.func as Record<string, unknown> | undefined;
         const objname = (func?.objname as Array<Record<string, unknown>>) ?? [];
         const schemaName =
-          objname.length > 1 ? getProtectedSchema(getSchemaFromNameList(objname), protectedSchemas) : null;
+          objname.length > 1
+            ? getProtectedSchema(getSchemaFromNameList(objname), protectedSchemas)
+            : null;
         if (schemaName) {
           return buildManagedSchemaWriteError(schemaName);
         }
@@ -338,7 +348,9 @@ export function checkManagedSchemaWriteOperations(
 
         const funcname = (data.funcname as Array<Record<string, unknown>>) ?? [];
         const functionSchema =
-          funcname.length > 1 ? getProtectedSchema(getSchemaFromNameList(funcname), protectedSchemas) : null;
+          funcname.length > 1
+            ? getProtectedSchema(getSchemaFromNameList(funcname), protectedSchemas)
+            : null;
         if (functionSchema) {
           return buildManagedSchemaWriteError(functionSchema);
         }
@@ -351,7 +363,10 @@ export function checkManagedSchemaWriteOperations(
             continue;
           }
 
-          const schemaName = getProtectedSchema(getDropObjectSchema(obj as Record<string, unknown>), protectedSchemas);
+          const schemaName = getProtectedSchema(
+            getDropObjectSchema(obj as Record<string, unknown>),
+            protectedSchemas
+          );
           if (schemaName) {
             return buildManagedSchemaWriteError(schemaName);
           }
@@ -395,7 +410,10 @@ export function checkManagedSchemaWriteOperations(
 
     return null;
   } catch (parseError) {
-    logger.warn('SQL parse error in checkManagedSchemaWriteOperations, rejecting query:', parseError);
+    logger.warn(
+      'SQL parse error in checkManagedSchemaWriteOperations, rejecting query:',
+      parseError
+    );
     return 'Query could not be parsed and was rejected for security reasons.';
   }
 }

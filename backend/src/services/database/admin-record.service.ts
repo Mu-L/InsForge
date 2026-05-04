@@ -3,11 +3,7 @@ import { DatabaseManager } from '@/infra/database/database.manager.js';
 import { ERROR_CODES } from '@/types/error-constants.js';
 import type { DatabaseRecord } from '@/types/database.js';
 import { escapeSqlLikePattern, validateTableName } from '@/utils/validations.js';
-import {
-  assertWritableDatabaseSchema,
-  quoteIdentifier,
-  quoteQualifiedName,
-} from './helpers.js';
+import { assertWritableDatabaseSchema, quoteIdentifier, quoteQualifiedName } from './helpers.js';
 
 interface SortClause {
   columnName: string;
@@ -54,20 +50,19 @@ export class AdminRecordService {
     const qualifiedTableName = quoteQualifiedName(schemaName, tableName);
     const orderBySql = this.buildOrderByClause(metadata, options.sort);
 
-    const countResult = await this.dbManager
-      .getPool()
-      .query<{ total: string }>(
-        `SELECT COUNT(*)::text AS total FROM ${qualifiedTableName}${whereSql}`,
-        params
-      );
+    const countResult = await this.dbManager.getPool().query<{
+      total: string;
+    }>(`SELECT COUNT(*)::text AS total FROM ${qualifiedTableName}${whereSql}`, params);
 
     const dataParams = [...params, options.limit, options.offset];
     const limitPlaceholder = `$${params.length + 1}`;
     const offsetPlaceholder = `$${params.length + 2}`;
-    const recordsResult = await this.dbManager.getPool().query<DatabaseRecord>(
-      `SELECT * FROM ${qualifiedTableName}${whereSql}${orderBySql} LIMIT ${limitPlaceholder} OFFSET ${offsetPlaceholder}`,
-      dataParams
-    );
+    const recordsResult = await this.dbManager
+      .getPool()
+      .query<DatabaseRecord>(
+        `SELECT * FROM ${qualifiedTableName}${whereSql}${orderBySql} LIMIT ${limitPlaceholder} OFFSET ${offsetPlaceholder}`,
+        dataParams
+      );
 
     return {
       records: recordsResult.rows,
@@ -86,10 +81,12 @@ export class AdminRecordService {
     this.assertColumnExists(metadata, columnName);
 
     const qualifiedTableName = quoteQualifiedName(schemaName, tableName);
-    const result = await this.dbManager.getPool().query<DatabaseRecord>(
-      `SELECT * FROM ${qualifiedTableName} WHERE ${quoteIdentifier(columnName)} = $1 LIMIT 1`,
-      [value]
-    );
+    const result = await this.dbManager
+      .getPool()
+      .query<DatabaseRecord>(
+        `SELECT * FROM ${qualifiedTableName} WHERE ${quoteIdentifier(columnName)} = $1 LIMIT 1`,
+        [value]
+      );
 
     return result.rows[0] ?? null;
   }
@@ -181,10 +178,12 @@ export class AdminRecordService {
     values.push(pkValue);
 
     const qualifiedTableName = quoteQualifiedName(schemaName, tableName);
-    const result = await this.dbManager.getPool().query<DatabaseRecord>(
-      `UPDATE ${qualifiedTableName} SET ${assignments.join(', ')} WHERE ${quoteIdentifier(pkColumn)} = $${values.length} RETURNING *`,
-      values
-    );
+    const result = await this.dbManager
+      .getPool()
+      .query<DatabaseRecord>(
+        `UPDATE ${qualifiedTableName} SET ${assignments.join(', ')} WHERE ${quoteIdentifier(pkColumn)} = $${values.length} RETURNING *`,
+        values
+      );
 
     const updatedRecord = result.rows[0];
     if (!updatedRecord) {
@@ -217,10 +216,12 @@ export class AdminRecordService {
 
     const placeholders = pkValues.map((_, index) => `$${index + 1}`);
     const qualifiedTableName = quoteQualifiedName(schemaName, tableName);
-    const result = await this.dbManager.getPool().query(
-      `DELETE FROM ${qualifiedTableName} WHERE ${quoteIdentifier(pkColumn)} IN (${placeholders.join(', ')})`,
-      pkValues
-    );
+    const result = await this.dbManager
+      .getPool()
+      .query(
+        `DELETE FROM ${qualifiedTableName} WHERE ${quoteIdentifier(pkColumn)} IN (${placeholders.join(', ')})`,
+        pkValues
+      );
 
     return result.rowCount ?? 0;
   }

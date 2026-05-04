@@ -1,5 +1,5 @@
 import { apiClient } from '#lib/api/client';
-import { buildDatabaseSchemaSearch } from '#features/database/helpers';
+import { buildDatabaseSchemaSearch, DEFAULT_DATABASE_SCHEMA } from '#features/database/helpers';
 import type {
   DatabaseFunctionsResponse,
   DatabaseIndexesResponse,
@@ -7,7 +7,6 @@ import type {
   DatabaseSchemasResponse,
   DatabaseTriggersResponse,
 } from '@insforge/shared-schemas';
-import { DEFAULT_DATABASE_SCHEMA } from '@insforge/shared-schemas';
 
 export class DatabaseService {
   async getSchemas(): Promise<DatabaseSchemasResponse> {
@@ -34,9 +33,7 @@ export class DatabaseService {
    * Get all database indexes.
    * Requires admin privileges.
    */
-  async getIndexes(
-    schemaName: string = DEFAULT_DATABASE_SCHEMA
-  ): Promise<DatabaseIndexesResponse> {
+  async getIndexes(schemaName: string = DEFAULT_DATABASE_SCHEMA): Promise<DatabaseIndexesResponse> {
     return apiClient.request(`/database/indexes${buildDatabaseSchemaSearch(schemaName)}`, {
       method: 'GET',
       headers: apiClient.withAccessToken({}),

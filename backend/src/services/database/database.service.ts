@@ -6,12 +6,7 @@ import type {
   DatabasePoliciesResponse,
   DatabaseTriggersResponse,
 } from '@insforge/shared-schemas';
-import {
-  DASHBOARD_SUPPORTED_DATABASE_SCHEMAS,
-  DEFAULT_DATABASE_SCHEMA,
-  INSFORGE_MANAGED_DATABASE_SCHEMAS,
-  isInsForgeManagedDatabaseSchema,
-} from '@insforge/shared-schemas';
+import { DEFAULT_DATABASE_SCHEMA, INSFORGE_MANAGED_DATABASE_SCHEMAS } from './helpers.js';
 
 export class DatabaseService {
   private static instance: DatabaseService;
@@ -27,34 +22,36 @@ export class DatabaseService {
   }
 
   /**
-   * List only the schemas currently supported by the dashboard: public plus
-   * InsForge-managed protected schemas.
+   * List all non-internal schemas visible to the dashboard and flag the
+   * InsForge-managed ones as protected/read-only.
    */
   async getSchemas(): Promise<DatabaseSchemasResponse> {
     const pool = this.dbManager.getPool();
 
     const result = await pool.query(
       `
-        WITH supported_schemas AS (
-          SELECT name, ordinality
-          FROM unnest($1::text[]) WITH ORDINALITY AS supported(name, ordinality)
-        )
         SELECT
-          supported.name,
-          (supported.name = ANY($2::text[])) AS "isProtected"
-        FROM supported_schemas supported
-        JOIN pg_namespace n ON n.nspname = supported.name
-        ORDER BY supported.ordinality
+          n.nspname AS name,
+          (n.nspname = ANY($1::text[])) AS "isProtected"
+        FROM pg_namespace n
+        WHERE n.nspname <> 'information_schema'
+          AND n.nspname NOT LIKE 'pg_%'
+        ORDER BY
+          CASE
+            WHEN n.nspname = $2 THEN 0
+            WHEN n.nspname = ANY($1::text[]) THEN 1
+            ELSE 2
+          END,
+          array_position($1::text[], n.nspname),
+          n.nspname
       `,
-      [DASHBOARD_SUPPORTED_DATABASE_SCHEMAS, INSFORGE_MANAGED_DATABASE_SCHEMAS]
+      [INSFORGE_MANAGED_DATABASE_SCHEMAS, DEFAULT_DATABASE_SCHEMA]
     );
 
     return {
       schemas: result.rows.map((row: { name: string; isProtected: boolean }) => ({
         name: row.name,
-        isProtected:
-          row.name !== DEFAULT_DATABASE_SCHEMA &&
-          (row.isProtected || isInsForgeManagedDatabaseSchema(row.name)),
+        isProtected: row.name !== DEFAULT_DATABASE_SCHEMA && row.isProtected,
       })),
     };
   }

@@ -1,9 +1,8 @@
 import { apiClient } from '#lib/api/client';
-import { buildDatabaseSchemaSearch } from '#features/database/helpers';
+import { buildDatabaseSchemaSearch, DEFAULT_DATABASE_SCHEMA } from '#features/database/helpers';
 import {
   ColumnSchema,
   CreateTableRequest,
-  DEFAULT_DATABASE_SCHEMA,
   GetTableSchemaResponse,
   UpdateTableSchemaRequest,
   UpdateTableSchemaResponse,
@@ -41,10 +40,13 @@ export class TableService {
   }
 
   deleteTable(tableName: string, schemaName: string = DEFAULT_DATABASE_SCHEMA) {
-    return apiClient.request(`/database/tables/${tableName}${buildDatabaseSchemaSearch(schemaName)}`, {
-      method: 'DELETE',
-      headers: apiClient.withAccessToken(),
-    });
+    return apiClient.request(
+      `/database/tables/${tableName}${buildDatabaseSchemaSearch(schemaName)}`,
+      {
+        method: 'DELETE',
+        headers: apiClient.withAccessToken(),
+      }
+    );
   }
 
   updateTableSchema(

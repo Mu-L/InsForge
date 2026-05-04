@@ -2,9 +2,9 @@ import { Pool, Client } from 'pg';
 import path from 'path';
 import fs from 'fs/promises';
 import { fileURLToPath } from 'url';
-import { DatabaseMetadataSchema, DEFAULT_DATABASE_SCHEMA } from '@insforge/shared-schemas';
+import { DatabaseMetadataSchema } from '@insforge/shared-schemas';
 import pgFormat from 'pg-format';
-import { buildQualifiedTableKey } from '@/services/database/helpers.js';
+import { buildQualifiedTableKey, DEFAULT_DATABASE_SCHEMA } from '@/services/database/helpers.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

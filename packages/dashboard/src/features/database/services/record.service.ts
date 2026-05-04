@@ -1,6 +1,7 @@
 import { ConvertedValue } from '#components/datagrid/datagridTypes';
+import { DEFAULT_DATABASE_SCHEMA } from '#features/database/helpers';
 import { apiClient } from '#lib/api/client';
-import { BulkUpsertResponse, DEFAULT_DATABASE_SCHEMA } from '@insforge/shared-schemas';
+import { BulkUpsertResponse } from '@insforge/shared-schemas';
 
 interface AdminRecordListResponse {
   data: { [key: string]: ConvertedValue }[];
@@ -152,9 +153,7 @@ export class RecordService {
       limit: limit.toString(),
       offset: offset.toString(),
       ...(normalizedSort ? { sort: normalizedSort } : {}),
-      ...(filterColumn && filterValue !== undefined
-        ? { filterColumn, filterValue }
-        : {}),
+      ...(filterColumn && filterValue !== undefined ? { filterColumn, filterValue } : {}),
     });
 
     const response: AdminRecordListResponse = await apiClient.request(
@@ -186,11 +185,11 @@ export class RecordService {
     });
 
     return apiClient.request(this.buildAdminRecordsPath(table, schemaName), {
-        method: 'POST',
-        headers: apiClient.withAccessToken({
-          'Content-Type': 'application/json',
-        }),
-        body: JSON.stringify(records),
+      method: 'POST',
+      headers: apiClient.withAccessToken({
+        'Content-Type': 'application/json',
+      }),
+      body: JSON.stringify(records),
     });
   }
 
@@ -242,8 +241,8 @@ export class RecordService {
     });
 
     return apiClient.request(this.buildAdminRecordsPath(table, schemaName, '', params), {
-        method: 'DELETE',
-        headers: apiClient.withAccessToken(),
+      method: 'DELETE',
+      headers: apiClient.withAccessToken(),
     });
   }
 

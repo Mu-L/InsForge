@@ -1,35 +1,5 @@
 import { z } from 'zod';
 
-export const DEFAULT_DATABASE_SCHEMA = 'public' as const;
-
-export const INSFORGE_MANAGED_DATABASE_SCHEMAS = [
-  'ai',
-  'auth',
-  'compute',
-  'deployments',
-  'email',
-  'functions',
-  'realtime',
-  'schedules',
-  'storage',
-  'system',
-] as const;
-
-const insforgeManagedDatabaseSchemaSet = new Set<string>(INSFORGE_MANAGED_DATABASE_SCHEMAS);
-export const DASHBOARD_SUPPORTED_DATABASE_SCHEMAS = [
-  DEFAULT_DATABASE_SCHEMA,
-  ...INSFORGE_MANAGED_DATABASE_SCHEMAS,
-] as const;
-const dashboardSupportedDatabaseSchemaSet = new Set<string>(DASHBOARD_SUPPORTED_DATABASE_SCHEMAS);
-
-export function isInsForgeManagedDatabaseSchema(schemaName: string): boolean {
-  return insforgeManagedDatabaseSchemaSet.has(schemaName);
-}
-
-export function isDashboardSupportedDatabaseSchema(schemaName: string): boolean {
-  return dashboardSupportedDatabaseSchemaSet.has(schemaName);
-}
-
 export enum ColumnType {
   STRING = 'string',
   DATE = 'date',

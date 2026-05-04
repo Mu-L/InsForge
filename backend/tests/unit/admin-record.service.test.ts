@@ -53,9 +53,7 @@ describe('AdminRecordService', () => {
 
     expect(poolQueryMock.mock.calls[1]?.[0]).toContain('FROM "auth"."users"');
     expect(poolQueryMock.mock.calls[1]?.[1]).toEqual(['%demo%']);
-    expect(poolQueryMock.mock.calls[2]?.[0]).toContain(
-      'ORDER BY "email" ASC LIMIT $2 OFFSET $3'
-    );
+    expect(poolQueryMock.mock.calls[2]?.[0]).toContain('ORDER BY "email" ASC LIMIT $2 OFFSET $3');
     expect(poolQueryMock.mock.calls[2]?.[1]).toEqual(['%demo%', 10, 0]);
   });
 

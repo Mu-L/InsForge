@@ -372,13 +372,9 @@ export type AdminTableRecordUpdateRequest = z.infer<typeof adminTableRecordUpdat
 export type AdminTableRecordsDeleteQuery = z.infer<typeof adminTableRecordsDeleteQuerySchema>;
 export type AdminTableRecordResponse = z.infer<typeof adminTableRecordResponseSchema>;
 export type AdminTableRecordLookupResponse = z.infer<typeof adminTableRecordLookupResponseSchema>;
-export type AdminTableRecordsCreateResponse = z.infer<
-  typeof adminTableRecordsCreateResponseSchema
->;
+export type AdminTableRecordsCreateResponse = z.infer<typeof adminTableRecordsCreateResponseSchema>;
 export type AdminTableRecordsListResponse = z.infer<typeof adminTableRecordsListResponseSchema>;
-export type AdminTableRecordsDeleteResponse = z.infer<
-  typeof adminTableRecordsDeleteResponseSchema
->;
+export type AdminTableRecordsDeleteResponse = z.infer<typeof adminTableRecordsDeleteResponseSchema>;
 export type CreateMigrationRequest = z.infer<typeof createMigrationRequestSchema>;
 export type CreateMigrationResponse = z.infer<typeof createMigrationResponseSchema>;
 
