@@ -1,6 +1,5 @@
 import type Stripe from 'stripe';
 
-type StripeInstance = Stripe.Stripe;
 type AsyncIterableItem<T> = T extends AsyncIterable<infer Item> ? Item : never;
 type StripeResourceData<T> = Omit<T, 'lastResponse'>;
 
@@ -10,46 +9,34 @@ export type StripeEnvironment = (typeof STRIPE_ENVIRONMENTS)[number];
 export type StripeConnectionStatus = 'unconfigured' | 'connected' | 'error';
 export type StripeLatestSyncStatus = 'succeeded' | 'failed';
 
-export type StripeAccount = Awaited<ReturnType<StripeInstance['accounts']['retrieveCurrent']>>;
-export type StripeProduct = AsyncIterableItem<ReturnType<StripeInstance['products']['list']>>;
-export type StripePrice = AsyncIterableItem<ReturnType<StripeInstance['prices']['list']>>;
-export type StripeCustomer = Awaited<ReturnType<StripeInstance['customers']['create']>>;
-export type StripeCheckoutSession = Awaited<
-  ReturnType<StripeInstance['checkout']['sessions']['create']>
->;
+export type StripeAccount = Awaited<ReturnType<Stripe['accounts']['retrieveCurrent']>>;
+export type StripeProduct = AsyncIterableItem<ReturnType<Stripe['products']['list']>>;
+export type StripePrice = AsyncIterableItem<ReturnType<Stripe['prices']['list']>>;
+export type StripeCustomer = Awaited<ReturnType<Stripe['customers']['create']>>;
+export type StripeCheckoutSession = Awaited<ReturnType<Stripe['checkout']['sessions']['create']>>;
 export type StripeCustomerPortalSession = Awaited<
-  ReturnType<StripeInstance['billingPortal']['sessions']['create']>
+  ReturnType<Stripe['billingPortal']['sessions']['create']>
 >;
-export type StripeEvent = ReturnType<StripeInstance['webhooks']['constructEvent']>;
+export type StripeEvent = ReturnType<Stripe['webhooks']['constructEvent']>;
 export type StripeWebhookEndpoint = AsyncIterableItem<
-  ReturnType<StripeInstance['webhookEndpoints']['list']>
+  ReturnType<Stripe['webhookEndpoints']['list']>
 >;
 export type StripeWebhookEndpointCreateResult = Awaited<
-  ReturnType<StripeInstance['webhookEndpoints']['create']>
+  ReturnType<Stripe['webhookEndpoints']['create']>
 >;
-export type StripeSubscription = AsyncIterableItem<
-  ReturnType<StripeInstance['subscriptions']['list']>
->;
+export type StripeSubscription = AsyncIterableItem<ReturnType<Stripe['subscriptions']['list']>>;
 export type StripeSubscriptionItem = AsyncIterableItem<
-  ReturnType<StripeInstance['subscriptionItems']['list']>
+  ReturnType<Stripe['subscriptionItems']['list']>
 >;
 export type StripePaymentIntent = StripeResourceData<
-  Awaited<ReturnType<StripeInstance['paymentIntents']['retrieve']>>
+  Awaited<ReturnType<Stripe['paymentIntents']['retrieve']>>
 >;
-export type StripeCharge = StripeResourceData<
-  Awaited<ReturnType<StripeInstance['charges']['retrieve']>>
->;
-export type StripeInvoice = StripeResourceData<
-  Awaited<ReturnType<StripeInstance['invoices']['retrieve']>>
->;
-export type StripeInvoicePayment = AsyncIterableItem<
-  ReturnType<StripeInstance['invoicePayments']['list']>
->;
-export type StripeRefund = StripeResourceData<
-  Awaited<ReturnType<StripeInstance['refunds']['retrieve']>>
->;
+export type StripeCharge = StripeResourceData<Awaited<ReturnType<Stripe['charges']['retrieve']>>>;
+export type StripeInvoice = StripeResourceData<Awaited<ReturnType<Stripe['invoices']['retrieve']>>>;
+export type StripeInvoicePayment = AsyncIterableItem<ReturnType<Stripe['invoicePayments']['list']>>;
+export type StripeRefund = StripeResourceData<Awaited<ReturnType<Stripe['refunds']['retrieve']>>>;
 export type StripeClient = Pick<
-  StripeInstance,
+  Stripe,
   | 'accounts'
   | 'products'
   | 'prices'
