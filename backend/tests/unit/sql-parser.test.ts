@@ -240,6 +240,14 @@ describe('checkManagedSchemaWriteOperations', () => {
     ).not.toBeNull();
   });
 
+  it('blocks UPDATE on payments schema', () => {
+    expect(
+      checkManagedSchemaWriteOperations(
+        "UPDATE payments.customers SET email = 'new@example.com' WHERE id = 'cus_123'"
+      )
+    ).not.toBeNull();
+  });
+
   it('blocks CREATE POLICY on auth schema', () => {
     expect(
       checkManagedSchemaWriteOperations('CREATE POLICY p ON auth.users FOR SELECT USING (true)')
