@@ -1,5 +1,35 @@
 import { z } from 'zod';
 
+export const DEFAULT_DATABASE_SCHEMA = 'public' as const;
+
+export const INSFORGE_MANAGED_DATABASE_SCHEMAS = [
+  'ai',
+  'auth',
+  'compute',
+  'deployments',
+  'email',
+  'functions',
+  'realtime',
+  'schedules',
+  'storage',
+  'system',
+] as const;
+
+const insforgeManagedDatabaseSchemaSet = new Set<string>(INSFORGE_MANAGED_DATABASE_SCHEMAS);
+export const DASHBOARD_SUPPORTED_DATABASE_SCHEMAS = [
+  DEFAULT_DATABASE_SCHEMA,
+  ...INSFORGE_MANAGED_DATABASE_SCHEMAS,
+] as const;
+const dashboardSupportedDatabaseSchemaSet = new Set<string>(DASHBOARD_SUPPORTED_DATABASE_SCHEMAS);
+
+export function isInsForgeManagedDatabaseSchema(schemaName: string): boolean {
+  return insforgeManagedDatabaseSchemaSet.has(schemaName);
+}
+
+export function isDashboardSupportedDatabaseSchema(schemaName: string): boolean {
+  return dashboardSupportedDatabaseSchemaSet.has(schemaName);
+}
+
 export enum ColumnType {
   STRING = 'string',
   DATE = 'date',
@@ -52,6 +82,7 @@ export const columnSchema = z.object({
 });
 
 export const tableSchema = z.object({
+  schemaName: z.string().optional(),
   tableName: z
     .string()
     .min(1, 'Table name cannot be empty')
@@ -67,6 +98,13 @@ export type ColumnSchema = z.infer<typeof columnSchema>;
 export type ForeignKeySchema = z.infer<typeof foreignKeySchema>;
 export type OnUpdateActionSchema = z.infer<typeof onUpdateActionSchema>;
 export type OnDeleteActionSchema = z.infer<typeof onDeleteActionSchema>;
+
+export const databaseSchemaInfoSchema = z.object({
+  name: z.string(),
+  isProtected: z.boolean(),
+});
+
+export type DatabaseSchemaInfo = z.infer<typeof databaseSchemaInfoSchema>;
 
 // Database Metadata Object Schemas
 export const databaseFunctionSchema = z.object({

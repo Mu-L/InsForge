@@ -19,6 +19,7 @@ import { useAllTableSchemas } from '#features/database/hooks/useTables';
 import { useTheme } from '#lib/contexts/ThemeContext';
 import {
   StorageBucketSchema,
+  DEFAULT_DATABASE_SCHEMA,
   GetTableSchemaResponse,
   DatabaseMetadataSchema,
   StorageMetadataSchema,
@@ -211,7 +212,10 @@ export function SchemaVisualizer({
   const { resolvedTheme } = useTheme();
 
   // Fetch all table schemas (only when external schemas are not provided)
-  const { allSchemas, isLoading: isLoadingSchemas } = useAllTableSchemas(!externalSchemas);
+  const { allSchemas, isLoading: isLoadingSchemas } = useAllTableSchemas(
+    DEFAULT_DATABASE_SCHEMA,
+    !externalSchemas
+  );
 
   // Use external schemas if provided, otherwise use fetched schemas
   const tables = externalSchemas || allSchemas;

@@ -1,5 +1,11 @@
 import { jsonSchema } from '#lib/utils/schemaValidations';
-import { ColumnSchema, ColumnType } from '@insforge/shared-schemas';
+import {
+  ColumnSchema,
+  ColumnType,
+  DEFAULT_DATABASE_SCHEMA,
+  isInsForgeManagedDatabaseSchema,
+  type DatabaseSchemaInfo,
+} from '@insforge/shared-schemas';
 import { z } from 'zod';
 
 export const SYSTEM_FIELDS = ['id', 'created_at', 'updated_at'];
@@ -122,4 +128,41 @@ export function getInitialValues(columns: ColumnSchema[]): Record<string, unknow
   });
 
   return values;
+}
+
+export function buildDatabaseSchemaSearch(schemaName: string): string {
+  return schemaName === DEFAULT_DATABASE_SCHEMA
+    ? ''
+    : `?${new URLSearchParams({ schema: schemaName }).toString()}`;
+}
+
+export function parseDatabaseTableReference(
+  tableReference: string,
+  defaultSchemaName: string = DEFAULT_DATABASE_SCHEMA
+): { schemaName: string; tableName: string } {
+  const parts = tableReference.split('.');
+
+  if (parts.length === 2) {
+    return {
+      schemaName: parts[0],
+      tableName: parts[1],
+    };
+  }
+
+  return {
+    schemaName: defaultSchemaName,
+    tableName: tableReference,
+  };
+}
+
+export function getDatabaseSchemaInfo(
+  schemas: DatabaseSchemaInfo[] | undefined,
+  schemaName: string
+): DatabaseSchemaInfo {
+  return (
+    schemas?.find((schema) => schema.name === schemaName) ?? {
+      name: schemaName,
+      isProtected: isInsForgeManagedDatabaseSchema(schemaName),
+    }
+  );
 }

@@ -97,6 +97,7 @@ function filterWidthsByColumns(
 
 export function useTableColumnWidthsPreference(
   tableName: string | null,
+  schemaName: string = 'public',
   availableColumns?: string[]
 ) {
   const [preferences, setPreferences] = useState<DatabaseGridPreferences>(loadPreferences);
@@ -187,18 +188,26 @@ export function useTableColumnWidthsPreference(
     };
   }, [flushPendingWidths]);
 
-  const columnWidths = useMemo(() => {
+  const tableStorageKey = useMemo(() => {
     if (!tableName) {
+      return null;
+    }
+
+    return `${schemaName}.${tableName}`;
+  }, [schemaName, tableName]);
+
+  const columnWidths = useMemo(() => {
+    if (!tableStorageKey) {
       return {};
     }
 
-    const storedWidths = preferences.tableColumnWidths[tableName] ?? {};
+    const storedWidths = preferences.tableColumnWidths[tableStorageKey] ?? {};
     return filterWidthsByColumns(storedWidths, availableColumns);
-  }, [tableName, availableColumns, preferences]);
+  }, [tableStorageKey, availableColumns, preferences]);
 
   const setColumnWidth = useCallback(
     (columnKey: string, width: number) => {
-      if (!tableName || !columnKey || !Number.isFinite(width) || width <= 0) {
+      if (!tableStorageKey || !columnKey || !Number.isFinite(width) || width <= 0) {
         return;
       }
 
@@ -206,8 +215,9 @@ export function useTableColumnWidthsPreference(
         return;
       }
 
-      const committedWidth = latestPreferencesRef.current.tableColumnWidths[tableName]?.[columnKey];
-      const pendingWidth = pendingWidthsRef.current[tableName]?.[columnKey];
+      const committedWidth =
+        latestPreferencesRef.current.tableColumnWidths[tableStorageKey]?.[columnKey];
+      const pendingWidth = pendingWidthsRef.current[tableStorageKey]?.[columnKey];
 
       if (committedWidth === width && pendingWidth === undefined) {
         return;
@@ -217,10 +227,10 @@ export function useTableColumnWidthsPreference(
         return;
       }
 
-      const tablePendingWidths = pendingWidthsRef.current[tableName] ?? {};
+      const tablePendingWidths = pendingWidthsRef.current[tableStorageKey] ?? {};
       pendingWidthsRef.current = {
         ...pendingWidthsRef.current,
-        [tableName]: {
+        [tableStorageKey]: {
           ...tablePendingWidths,
           [columnKey]: width,
         },
@@ -228,7 +238,7 @@ export function useTableColumnWidthsPreference(
 
       scheduleFlushPendingWidths();
     },
-    [tableName, availableColumns, scheduleFlushPendingWidths]
+    [tableStorageKey, availableColumns, scheduleFlushPendingWidths]
   );
 
   return {

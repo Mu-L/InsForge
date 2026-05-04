@@ -18,6 +18,7 @@ import { ForeignKeyPopover } from './ForeignKeyPopover';
 import { ColumnType, TableSchema, UpdateTableSchemaRequest } from '@insforge/shared-schemas';
 import { SYSTEM_FIELDS } from '#features/database/helpers';
 import { databaseTableQueryKeys } from '#features/database/queryKeys';
+import { parseDatabaseTableReference } from '#features/database/helpers';
 
 const newColumn: TableFormColumnSchema = {
   columnName: '',
@@ -30,6 +31,7 @@ const newColumn: TableFormColumnSchema = {
 };
 
 interface TableFormProps {
+  schemaName: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: (newTable?: string) => void;
@@ -39,6 +41,7 @@ interface TableFormProps {
 }
 
 export function TableForm({
+  schemaName,
   open,
   onOpenChange,
   onSuccess,
@@ -121,13 +124,20 @@ export function TableForm({
       // Set foreign keys from editTable
       const existingForeignKeys = editTable.columns
         .filter((col) => !SYSTEM_FIELDS.includes(col.columnName) && col.foreignKey)
-        .map((col) => ({
-          columnName: col.columnName,
-          referenceTable: col.foreignKey?.referenceTable ?? '',
-          referenceColumn: col.foreignKey?.referenceColumn ?? '',
-          onDelete: col.foreignKey?.onDelete || 'NO ACTION',
-          onUpdate: col.foreignKey?.onUpdate || 'NO ACTION',
-        }));
+        .map((col) => {
+          const referenceTableValue = col.foreignKey?.referenceTable ?? '';
+          const { schemaName: referenceSchemaName, tableName: referenceTableName } =
+            parseDatabaseTableReference(referenceTableValue, schemaName);
+
+          return {
+            columnName: col.columnName,
+            referenceTable:
+              referenceSchemaName === schemaName ? referenceTableName : referenceTableValue,
+            referenceColumn: col.foreignKey?.referenceColumn ?? '',
+            onDelete: col.foreignKey?.onDelete || 'NO ACTION',
+            onUpdate: col.foreignKey?.onUpdate || 'NO ACTION',
+          };
+        });
       setForeignKeys(existingForeignKeys);
     } else {
       form.reset({
@@ -221,11 +231,11 @@ export function TableForm({
         };
       });
 
-      return tableService.createTable(data.tableName, columns);
+      return tableService.createTable(schemaName, data.tableName, columns);
     },
     onSuccess: (data) => {
       void queryClient.invalidateQueries({ queryKey: ['database-metadata'] });
-      void queryClient.invalidateQueries({ queryKey: databaseTableQueryKeys.list });
+      void queryClient.invalidateQueries({ queryKey: databaseTableQueryKeys.listRoot });
       void queryClient.invalidateQueries({ queryKey: ['metadata'] });
 
       showToast('Table created successfully!', 'success');
@@ -309,10 +319,20 @@ export function TableForm({
       // Get existing foreign keys from editTable
       const existingForeignKeys = existingUserColumns
         .filter((col) => col.foreignKey)
-        .map((col) => ({
-          columnName: col.columnName,
-          ...col.foreignKey,
-        }));
+        .map((col) => {
+          const referenceTableValue = col.foreignKey?.referenceTable ?? '';
+          const { schemaName: referenceSchemaName, tableName: referenceTableName } =
+            parseDatabaseTableReference(referenceTableValue, schemaName);
+
+          return {
+            columnName: col.columnName,
+            referenceTable:
+              referenceSchemaName === schemaName ? referenceTableName : referenceTableValue,
+            referenceColumn: col.foreignKey?.referenceColumn ?? '',
+            onDelete: col.foreignKey?.onDelete || 'NO ACTION',
+            onUpdate: col.foreignKey?.onUpdate || 'NO ACTION',
+          };
+        });
 
       // Compare with new foreign keys
       foreignKeys.forEach((fk) => {
@@ -352,26 +372,28 @@ export function TableForm({
         operations.renameTable = { newTableName: data.tableName };
       }
 
-      return tableService.updateTableSchema(editTable.tableName, operations);
+      return tableService.updateTableSchema(editTable.tableName, operations, schemaName);
     },
     onSuccess: (_, data) => {
       void queryClient.invalidateQueries({ queryKey: ['database-metadata'] });
-      void queryClient.invalidateQueries({ queryKey: databaseTableQueryKeys.list });
+      void queryClient.invalidateQueries({ queryKey: databaseTableQueryKeys.listRoot });
       void queryClient.invalidateQueries({ queryKey: ['metadata'] });
       if (editTable?.tableName) {
         void queryClient.invalidateQueries({
-          queryKey: databaseTableQueryKeys.schema(editTable.tableName),
+          queryKey: databaseTableQueryKeys.schema(schemaName, editTable.tableName),
         });
       }
       if (data.tableName !== editTable?.tableName) {
         void queryClient.invalidateQueries({
-          queryKey: databaseTableQueryKeys.schema(data.tableName),
+          queryKey: databaseTableQueryKeys.schema(schemaName, data.tableName),
         });
       }
 
       // Invalidate all table data queries for this table (with all parameter combinations)
-      void queryClient.invalidateQueries({ queryKey: ['records', editTable?.tableName] });
-      void queryClient.invalidateQueries({ queryKey: ['records', data.tableName] });
+      void queryClient.invalidateQueries({
+        queryKey: ['records', schemaName, editTable?.tableName],
+      });
+      void queryClient.invalidateQueries({ queryKey: ['records', schemaName, data.tableName] });
 
       showToast(`Table "${data.tableName}" updated successfully!`, 'success');
 
@@ -584,6 +606,7 @@ export function TableForm({
 
             <ForeignKeyPopover
               form={form}
+              schemaName={schemaName}
               mode={mode}
               editTableName={editTable?.tableName}
               open={showForeignKeyDialog}
