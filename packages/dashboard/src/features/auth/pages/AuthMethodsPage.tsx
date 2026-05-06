@@ -17,8 +17,11 @@ import {
 import type { OAuthProvidersSchema, CustomOAuthConfigSchema } from '@insforge/shared-schemas';
 import { oauthProviders, type OAuthProviderInfo } from '#features/auth/helpers';
 
+type OAuthDialogMode = 'create' | 'edit';
+
 export default function AuthMethodsPage() {
   const [selectedProvider, setSelectedProvider] = useState<OAuthProviderInfo>();
+  const [oauthDialogMode, setOAuthDialogMode] = useState<OAuthDialogMode>('create');
   const [selectedCustomProvider, setSelectedCustomProvider] = useState<CustomOAuthConfigSchema>();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isCustomDialogOpen, setIsCustomDialogOpen] = useState(false);
@@ -37,8 +40,9 @@ export default function AuthMethodsPage() {
     refetchConfigs: refetchCustomConfigs,
   } = useCustomOAuthConfig();
 
-  const handleConfigureProvider = (provider: OAuthProviderInfo) => {
+  const handleConfigureProvider = (provider: OAuthProviderInfo, mode: OAuthDialogMode) => {
     setSelectedProvider(provider);
+    setOAuthDialogMode(mode);
     setIsDialogOpen(true);
   };
 
@@ -73,6 +77,7 @@ export default function AuthMethodsPage() {
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
     setSelectedProvider(undefined);
+    setOAuthDialogMode('create');
   };
 
   const handleOpenCustomDialog = (config?: CustomOAuthConfigSchema) => {
@@ -140,7 +145,7 @@ export default function AuthMethodsPage() {
                 {availableProviders.map((provider) => (
                   <DropdownMenuItem
                     key={provider.id}
-                    onClick={() => handleConfigureProvider(provider)}
+                    onClick={() => handleConfigureProvider(provider, 'create')}
                     className="cursor-pointer gap-1 px-1.5 py-1.5"
                   >
                     <div className="flex min-w-0 flex-1 items-center gap-2">
@@ -227,7 +232,7 @@ export default function AuthMethodsPage() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-40 p-1.5">
                     <DropdownMenuItem
-                      onClick={() => handleConfigureProvider(provider)}
+                      onClick={() => handleConfigureProvider(provider, 'edit')}
                       className="cursor-pointer gap-2"
                     >
                       <Pencil className="h-5 w-5" />
@@ -299,6 +304,7 @@ export default function AuthMethodsPage() {
 
       <OAuthConfigDialog
         provider={selectedProvider}
+        mode={oauthDialogMode}
         isOpen={isDialogOpen}
         onClose={handleCloseDialog}
         onSuccess={handleSuccess}

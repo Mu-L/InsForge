@@ -39,6 +39,7 @@ const getCallbackUrl = (provider?: string) => {
 
 interface OAuthConfigDialogProps {
   provider?: OAuthProviderInfo;
+  mode: 'create' | 'edit';
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
@@ -46,12 +47,13 @@ interface OAuthConfigDialogProps {
 
 export function OAuthConfigDialog({
   provider,
+  mode,
   isOpen,
   onClose,
   onSuccess,
 }: OAuthConfigDialogProps) {
   const { providerConfig, createConfig, updateConfig, isCreating, isUpdating, isLoadingProvider } =
-    useOAuthConfig(provider?.id);
+    useOAuthConfig(mode === 'edit' ? provider?.id : null);
 
   const form = useForm<OAuthConfigSchema & { clientSecret?: string }>({
     resolver: zodResolver(oAuthConfigSchema.extend({ clientSecret: z.string().optional() })),
@@ -93,24 +95,29 @@ export function OAuthConfigDialog({
 
   // Load OAuth configuration after fetching
   useEffect(() => {
-    if (isOpen && provider && !isLoadingProvider) {
-      if (providerConfig) {
-        form.reset({
-          provider: provider.id,
-          clientId: providerConfig.clientId || '',
-          clientSecret: providerConfig.clientSecret || '',
-          useSharedKey: providerConfig.useSharedKey || false,
-        });
-      } else {
-        form.reset({
-          provider: provider.id,
-          clientId: '',
-          clientSecret: '',
-          useSharedKey: isSharedKeysAvailable,
-        });
-      }
+    if (!isOpen || !provider) {
+      return;
     }
-  }, [form, isLoadingProvider, isOpen, isSharedKeysAvailable, provider, providerConfig]);
+
+    if (mode === 'create') {
+      form.reset({
+        provider: provider.id,
+        clientId: '',
+        clientSecret: '',
+        useSharedKey: isSharedKeysAvailable,
+      });
+      return;
+    }
+
+    if (!isLoadingProvider && providerConfig) {
+      form.reset({
+        provider: provider.id,
+        clientId: providerConfig.clientId || '',
+        clientSecret: providerConfig.clientSecret || '',
+        useSharedKey: providerConfig.useSharedKey || false,
+      });
+    }
+  }, [form, isLoadingProvider, isOpen, isSharedKeysAvailable, mode, provider, providerConfig]);
 
   const handleSubmitData = (data: OAuthConfigSchema & { clientSecret?: string }) => {
     if (!provider) {
@@ -118,7 +125,11 @@ export function OAuthConfigDialog({
     }
 
     try {
-      if (providerConfig) {
+      if (mode === 'edit') {
+        if (!providerConfig) {
+          return;
+        }
+
         // Update existing config
         updateConfig({
           provider: provider.id,
@@ -164,8 +175,10 @@ export function OAuthConfigDialog({
     }
 
     // In update mode, require dirty state
-    if (providerConfig && !isDirty) {
-      return true;
+    if (mode === 'edit') {
+      if (!providerConfig || !isDirty) {
+        return true;
+      }
     }
 
     // If using shared keys, always allow (no credential validation needed)
