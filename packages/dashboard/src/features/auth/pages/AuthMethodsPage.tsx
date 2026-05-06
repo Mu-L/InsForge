@@ -1,6 +1,10 @@
 import { useState, useCallback, useMemo } from 'react';
 import { MoreHorizontal, Plus, Trash2, Pencil, Mail, ChevronDown, KeyRound } from 'lucide-react';
-import { OAuthConfigDialog, CustomOAuthConfigDialog } from '#features/auth/components';
+import {
+  OAuthConfigDialog,
+  CustomOAuthConfigDialog,
+  type OAuthDialogMode,
+} from '#features/auth/components';
 import { useOAuthConfig } from '#features/auth/hooks/useOAuthConfig';
 import { useCustomOAuthConfig } from '#features/auth/hooks/useCustomOAuthConfig';
 import { useConfirm } from '#lib/hooks/useConfirm';
@@ -16,8 +20,6 @@ import {
 } from '@insforge/ui';
 import type { OAuthProvidersSchema, CustomOAuthConfigSchema } from '@insforge/shared-schemas';
 import { oauthProviders, type OAuthProviderInfo } from '#features/auth/helpers';
-
-type OAuthDialogMode = 'create' | 'edit';
 
 export default function AuthMethodsPage() {
   const [selectedProvider, setSelectedProvider] = useState<OAuthProviderInfo>();

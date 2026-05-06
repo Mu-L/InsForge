@@ -45,6 +45,8 @@ interface OAuthConfigDialogProps {
   onSuccess?: () => void;
 }
 
+export type OAuthDialogMode = OAuthConfigDialogProps['mode'];
+
 export function OAuthConfigDialog({
   provider,
   mode,
@@ -318,10 +320,10 @@ export function OAuthConfigDialog({
               </Button>
               <Button type="button" onClick={handleSubmit} disabled={isDisabled()} className="w-30">
                 {saving
-                  ? providerConfig
+                  ? mode === 'edit'
                     ? 'Updating...'
                     : 'Adding...'
-                  : providerConfig
+                  : mode === 'edit'
                     ? 'Update'
                     : 'Add Provider'}
               </Button>
