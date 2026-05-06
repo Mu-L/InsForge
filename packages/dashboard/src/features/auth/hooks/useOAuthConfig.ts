@@ -25,17 +25,24 @@ export function useOAuthConfig(selectedProvider?: OAuthProvidersSchema | null) {
     queryFn: () => oAuthConfigService.getAllConfigs(),
   });
 
+  const shouldFetchProviderConfig =
+    !!selectedProvider &&
+    (configs?.data?.some((config) => config.provider === selectedProvider) ?? false);
+
   // Query to fetch specific provider config
   const {
-    data: providerConfig,
+    data: fetchedProviderConfig,
     isLoading: isLoadingProvider,
-    error: providerError,
+    error: fetchedProviderError,
     refetch: refetchProvider,
   } = useQuery<OAuthConfigSchema & { clientSecret?: string }>({
     queryKey: ['oauth-config', selectedProvider],
     queryFn: () => oAuthConfigService.getConfigByProvider(selectedProvider ?? ''),
-    enabled: !!selectedProvider,
+    enabled: shouldFetchProviderConfig,
   });
+
+  const providerConfig = shouldFetchProviderConfig ? fetchedProviderConfig : undefined;
+  const providerError = shouldFetchProviderConfig ? fetchedProviderError : null;
 
   // Mutation to create OAuth configuration
   const createConfigMutation = useMutation({
